@@ -36,6 +36,7 @@ func GetErrRawBody(err error) (string, bool) {
 	return "", false
 }
 
+// Result is an individual search result.
 type Result struct {
 	Name     string
 	Magnet   string
@@ -53,6 +54,7 @@ type Client struct {
 	transport http.RoundTripper
 }
 
+// Search performs a search query.
 func (c *Client) Search(q string) ([]Result, error) {
 	u, err := c.url.Parse(fmt.Sprintf("/usearch/%s/", url.QueryEscape(q)))
 	if err != nil {
