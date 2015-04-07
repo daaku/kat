@@ -166,3 +166,11 @@ func TestNewClientRawURL(t *testing.T) {
 		Host:   "foo.com",
 	})
 }
+
+func TestEmptyQuerySearch(t *testing.T) {
+	c, err := NewClient(ClientRawURL("http://foo.com"))
+	ensure.Nil(t, err)
+	res, err := c.Search("")
+	ensure.DeepEqual(t, err, errEmptyQuery)
+	ensure.DeepEqual(t, len(res), 0)
+}

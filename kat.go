@@ -3,6 +3,7 @@ package kat
 
 import (
 	"bytes"
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"net/http"
@@ -17,6 +18,8 @@ const (
 	noResultsMagic        = "did not match any documents"
 	errExtractErrorString = "kat: did not find expected html structure"
 )
+
+var errEmptyQuery = errors.New("kat: invalid empty query search")
 
 type errExtractError struct {
 	body string
@@ -56,6 +59,10 @@ type Client struct {
 
 // Search performs a search query.
 func (c *Client) Search(q string) ([]Result, error) {
+	if q == "" {
+		return nil, errEmptyQuery
+	}
+
 	u, err := c.url.Parse(fmt.Sprintf("/usearch/%s/", url.QueryEscape(q)))
 	if err != nil {
 		return nil, err
