@@ -26,14 +26,14 @@ func (e errExtractError) Error() string {
 	return errExtractErrorString
 }
 
-// GetErrRawBody returns the raw response body from the error. It returns true
-// if a body was found. When Search returns an error, this may be used to
-// retrieve the raw response body if one is available.
-func GetErrRawBody(err error) (string, bool) {
+// GetErrRawBody returns the raw response body from the error. When Search
+// returns an error, this may be used to retrieve the raw response body if one
+// is available.
+func GetErrRawBody(err error) string {
 	if ee, ok := err.(errExtractError); ok {
-		return ee.body, true
+		return ee.body
 	}
-	return "", false
+	return ""
 }
 
 // Result is an individual search result.

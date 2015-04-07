@@ -20,15 +20,11 @@ func TestErrExtractErrorString(t *testing.T) {
 
 func TestGetErrRawBody(t *testing.T) {
 	const body = "body"
-	actual, ok := GetErrRawBody(errExtractError{body: body})
-	ensure.True(t, ok)
-	ensure.DeepEqual(t, actual, body)
+	ensure.DeepEqual(t, GetErrRawBody(errExtractError{body: body}), body)
 }
 
 func TestNoGetErrRawBody(t *testing.T) {
-	actual, ok := GetErrRawBody(errors.New("foo"))
-	ensure.False(t, ok)
-	ensure.DeepEqual(t, actual, "")
+	ensure.DeepEqual(t, GetErrRawBody(errors.New("foo")), "")
 }
 
 type fTransport func(*http.Request) (*http.Response, error)
