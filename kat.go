@@ -15,29 +15,10 @@ import (
 )
 
 const (
-	noResultsMagic        = "did not match any documents"
 	errExtractErrorString = "kat: did not find expected html structure"
 )
 
 var errEmptyQuery = errors.New("kat: invalid empty query search")
-
-type errExtractError struct {
-	body string
-}
-
-func (e errExtractError) Error() string {
-	return errExtractErrorString
-}
-
-// GetErrRawBody returns the raw response body from the error. When Search
-// returns an error, this may be used to retrieve the raw response body if one
-// is available.
-func GetErrRawBody(err error) string {
-	if ee, ok := err.(errExtractError); ok {
-		return ee.body
-	}
-	return ""
-}
 
 // Result is an individual search result.
 type Result struct {
@@ -45,7 +26,6 @@ type Result struct {
 	Magnet   string
 	Verified bool
 	Size     string
-	Files    int
 	Age      string
 	Seed     int
 	Leech    int
@@ -78,6 +58,7 @@ func (c *Client) Search(q string) ([]Result, error) {
 		return nil, err
 	}
 	defer res.Body.Close()
+	// TODO: error on non 200 responses?
 
 	bd, err := ioutil.ReadAll(res.Body)
 	if err != nil {
@@ -89,10 +70,6 @@ func (c *Client) Search(q string) ([]Result, error) {
 		return nil, err
 	}
 
-	if strings.Contains(doc.Text(), noResultsMagic) {
-		return nil, nil
-	}
-
 	// only use results from the first table with magnet links.
 	// this prevents using "suggested search" results.
 	table := doc.Find("a[href*=magnet]").First().Closest("table")
@@ -102,18 +79,13 @@ func (c *Client) Search(q string) ([]Result, error) {
 		tr := s.Closest("tr")
 		var r Result
 		r.Magnet, _ = s.Attr("href")
-		r.Name = tr.Find("td:nth-child(1) .cellMainLink").Text()
-		r.Size = tr.Find("td:nth-child(2)").Text()
-		r.Files, _ = strconv.Atoi(tr.Find("td:nth-child(3)").Text())
-		r.Age = tr.Find("td:nth-child(4)").Text()
+		r.Name = strings.TrimSpace(tr.Find("td:nth-child(1) .cellMainLink").Text())
+		r.Size = strings.TrimSpace(tr.Find("td:nth-child(2)").Text())
+		r.Age = strings.TrimSpace(tr.Find("td:nth-child(3)").Text())
 		r.Seed, _ = strconv.Atoi(tr.Find("td:nth-child(4)").Text())
 		r.Leech, _ = strconv.Atoi(tr.Find("td:nth-child(5)").Text())
 		results = append(results, r)
 	})
-
-	if len(results) == 0 {
-		return nil, errExtractError{body: string(bd)}
-	}
 
 	return results, nil
 }

@@ -6,7 +6,6 @@ import (
 	"io/ioutil"
 	"net/http"
 	"net/url"
-	"regexp"
 	"strings"
 	"testing"
 
@@ -37,7 +36,7 @@ func TestNoResults(t *testing.T) {
 	c, err := NewClient(
 		ClientTransport(fTransport(func(*http.Request) (*http.Response, error) {
 			return &http.Response{
-				Body: ioutil.NopCloser(strings.NewReader(noResultsMagic)),
+				Body: ioutil.NopCloser(strings.NewReader("<html>")),
 			}, nil
 		})),
 	)
@@ -72,20 +71,6 @@ func TestBodyReadError(t *testing.T) {
 	ensure.Nil(t, err)
 	res, err := c.Search("unimportant")
 	ensure.DeepEqual(t, err, givenErr)
-	ensure.DeepEqual(t, len(res), 0)
-}
-
-func TestErrExtractError(t *testing.T) {
-	c, err := NewClient(
-		ClientTransport(fTransport(func(*http.Request) (*http.Response, error) {
-			return &http.Response{
-				Body: ioutil.NopCloser(strings.NewReader("")),
-			}, nil
-		})),
-	)
-	ensure.Nil(t, err)
-	res, err := c.Search("unimportant")
-	ensure.Err(t, err, regexp.MustCompile(errExtractErrorString))
 	ensure.DeepEqual(t, len(res), 0)
 }
 

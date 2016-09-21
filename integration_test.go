@@ -8,21 +8,15 @@ import (
 	"github.com/facebookgo/ensure"
 )
 
-const prodURL = "https://kickass.to/"
+const prodURL = "http://kickass.cd/"
 
 func TestIntegrateSingleResult(t *testing.T) {
-	const target = "Ubuntu 14.10 Desktop 64bit ISO"
+	const target = "Ubuntu 16.04.1 LTS Desktop 64-bit"
 	client, err := NewClient(ClientRawURL(prodURL))
 	ensure.Nil(t, err)
 	actual, err := client.Search(target)
 	ensure.Nil(t, err)
-	ensure.Subset(t, actual, []Result{
-		{
-			Name:  "Ubuntu 14.10 Desktop 64bit ISO",
-			Size:  "1.08 GB",
-			Files: 1,
-		},
-	})
+	ensure.NotDeepEqual(t, len(actual), 0)
 }
 
 func TestIntegrateNoResults(t *testing.T) {
