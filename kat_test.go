@@ -12,20 +12,6 @@ import (
 	"github.com/facebookgo/ensure"
 )
 
-func TestErrExtractErrorString(t *testing.T) {
-	ensure.DeepEqual(t, (errExtractError{}).Error(), errExtractErrorString)
-	ensure.DeepEqual(t, (errExtractError{body: "foo"}).Error(), errExtractErrorString)
-}
-
-func TestGetErrRawBody(t *testing.T) {
-	const body = "body"
-	ensure.DeepEqual(t, GetErrRawBody(errExtractError{body: body}), body)
-}
-
-func TestNoGetErrRawBody(t *testing.T) {
-	ensure.DeepEqual(t, GetErrRawBody(errors.New("foo")), "")
-}
-
 type fTransport func(*http.Request) (*http.Response, error)
 
 func (f fTransport) RoundTrip(r *http.Request) (*http.Response, error) {
